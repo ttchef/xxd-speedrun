@@ -64,6 +64,7 @@ void print_line(char* line, int32_t* idx) {
 int32_t main(int32_t argc, char** argv) {
     FILE* fd;
     bool stdin_read = false;
+    bool patter_match = false;
     int64_t size = 0;
 
     char* stdin_input;
@@ -89,6 +90,7 @@ int32_t main(int32_t argc, char** argv) {
                 exit(-1);
             }
             index = 3;
+            patter_match = true;
         }
 
         fd = fopen(argv[index], "rb");
@@ -122,11 +124,9 @@ int32_t main(int32_t argc, char** argv) {
     bool hightlite_next_line = false;
     int32_t highlite_index = 0;
 
-    if (subnstr(buffer, MIN(size, 16), argv[2], strlen(argv[2]), &highlite_index)) {
+    if (patter_match && subnstr(buffer, MIN(size, 16), argv[2], strlen(argv[2]), &highlite_index)) {
         hightlite_next_line = true;
     }
-
-    printf("Size of pattern: %zu\n", strlen(argv[2]));
 
     printf("%08X: ", hex_offset);
     for (int32_t i = 0; i < size; i++) {
@@ -136,14 +136,14 @@ int32_t main(int32_t argc, char** argv) {
 
         if ((i + 1) % 2 == 0) printf(" ");
         if ((i + 1) % 16 == 0) {
-            if (subnstr(buffer + hex_offset, MIN(size - hex_offset, 16), argv[2], strlen(argv[2]), &highlite_index)) {
+            if (patter_match && subnstr(buffer + hex_offset, MIN(size - hex_offset, 16), argv[2], strlen(argv[2]), &highlite_index)) {
                 hightlite_next_line = true;
             }
 
             print_line(line, &line_index);
             hex_offset += 16;
 
-            if (hightlite_next_line) {
+            if (patter_match && hightlite_next_line) {
                 printf("          "); // hex offset
                 int32_t needle_index = highlite_index % 16;
                 int j;
